@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.contrib.auth import logout
 
 def login_view(request):
     if request.method == "POST":
@@ -24,13 +25,22 @@ def login_view(request):
 
 @login_required
 def vista_notas_docente(request):
-    return HttpResponse("Bienvenido Docente. Aquí puedes cargar notas.")
+    return render(request, 'usuarios/docente.html')
 
 @login_required
 def vista_notas_estudiante(request):
-    return HttpResponse("Bienvenido Estudiante. Aquí puedes ver tus notas.")
-
+    notas = [
+        {'asignatura': 'Matemáticas', 'nota': 3.5},
+        {'asignatura': 'Historia', 'nota': 2.5 },
+        {'asignatura': 'Lengua', 'nota': 4.0},
+    ]
+    return render(request, 'usuarios/estudiante.html', {'notas': notas})
 
 @login_required
 def vista_administrador(request):
     return HttpResponse("Bienvenido Administrador. Panel general.")
+
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect('login')

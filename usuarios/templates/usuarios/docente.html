@@ -1,0 +1,36 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+
+{% block title %}Panel del Docente{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+    
+    <h1 class="text-primary">Bienvenido Docente {{ user.first_name }} </h1>
+    <img src="{% static 'img/docente.jpg' %}" alt="Docente" class="img-fluid mb-3" style="max-height: 300px; width: 400px;">
+    <img src="{% static 'img/danza.jpg' %}" alt="danza" class="img-fluid mb-3" style="max-height: 300px; width: 400px;">
+    <img src="{% static 'img/docente1.jpg' %}" alt="Docente" class="img-fluid mb-3" style="max-height: 300px; width: 400px;">
+    <h4 class="text-muted">Panel de gestión académica para docentes</h4>
+</div>
+
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-3">
+            <div class="card-body text-center">
+                <h5 class="card-title">Cargar Notas</h5>
+                <p class="card-text">Sube las calificaciones de tus estudiantes.</p>
+                <a href="#" class="btn btn-success">Ingresar</a>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-3">
+            <div class="card-body text-center">
+                <h5 class="card-title">Ver Estudiantes</h5>
+                <p class="card-text">Consulta la lista de estudiantes asignados.</p>
+                <a href="#" class="btn btn-primary">Ver</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

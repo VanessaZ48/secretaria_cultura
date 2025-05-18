@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Sistema Secretaría de Cultura{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+
+<nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+  <div class="container-fluid d-flex align-items-center justify-content-between">
+
+
+    <div class="d-flex align-items-center">
+        <img src="{% static 'img/logo.png' %}" alt="Logo" class="logo rounded">
+    </div>
+
+
+    <div class="titulo">
+       SECRETARÍA DE CULTURA
+    </div>
+
+{% if user.is_authenticated %}
+    {% if "/docente/" in request.path or "/estudiante/" in request.path %}
+        <div class="ms-auto d-flex align-items-center">
+            <span class="text-white me-3"> {{ user.first_name }}</span>
+            <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </a>
+        </div>
+    {% endif %}
+{% endif %}
+
+    
+  </div>
+</nav>
+
+
+<div class="container mt-4">
+    {% block content %}{% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<style>
+    .titulo {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: rgb(251, 172, 172);
+    }
+
+    .logo {
+        height: 40px;
+        margin-right: 10px;
+    }
+
+    .custom-navbar {
+        background-color: rgb(42, 59, 43);
+    }
+</style>
+
+</body>
+</html>

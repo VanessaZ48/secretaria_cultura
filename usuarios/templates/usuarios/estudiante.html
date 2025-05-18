@@ -1,0 +1,37 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Panel Estudiante{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow">
+      <div class="card-header bg-info text-white text-center">
+        <h4>Bienvenido</h4>
+      </div>
+      <div class="card-body">
+        <h4 class="m-0"> Vanessa Zapata - Estudiante de MUSICA </h4>
+        <p class="Title">Curso: 148</p>
+        <p class="lead">Aquí puedes ver tus notas:</p>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Asignatura</th>
+              <th>Nota</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for nota in notas %}
+            <tr>
+              <td>{{ nota.asignatura }}</td>
+              <td>{{ nota.nota }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
