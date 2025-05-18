@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-    
+    path('', include('usuarios.urls')),  # Así agregas las URLs de login
+
     
 ]

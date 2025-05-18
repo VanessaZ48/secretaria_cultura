@@ -25,5 +25,9 @@ class Calificacion(models.Model):
     nota = models.FloatField()
     observaciones = models.TextField(blank=True, null=True)
 
+    class Meta:
+        unique_together = ('estudiante', 'periodo')  # Evita duplicados
+
     def __str__(self):
-        return f"{self.estudiante.nombre} - {self.periodo}"
+        return f"{self.estudiante.nombre} - {self.periodo}: {self.nota}"
+
