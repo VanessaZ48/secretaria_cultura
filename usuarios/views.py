@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.contrib.auth import logout
+from django.utils.decorators import method_decorator
 
 def login_view(request):
     if request.method == "POST":
@@ -44,3 +45,18 @@ def vista_administrador(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+
+@login_required
+def ingresar_notas(request):
+    return render(request, 'usuarios/ingresar_notas.html')
+
+@login_required
+def ver_estudiantes(request):
+    return render(request, 'usuarios/ver_estudiantes.html')
+
+
+@login_required
+def secretaria_inicio(request):
+    return render(request, 'usuarios/secretaria_inicio.html')
+
