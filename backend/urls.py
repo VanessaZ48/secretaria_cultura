@@ -21,6 +21,8 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+from gestion_academica.views import inscripcion_view
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('gestion_academica.urls')),

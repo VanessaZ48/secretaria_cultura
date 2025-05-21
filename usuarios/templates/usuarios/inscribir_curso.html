@@ -1,12 +1,33 @@
-<!-- templates/usuarios/inscribir_curso.html -->
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Inscribir Curso</title>
-</head>
-<body>
-    <h1>Página de inscripción a cursos</h1>
-    <p>Contenido próximamente...</p>
-</body>
-</html>
+<form method="post" action="{% url 'inscripcion' %}" style="max-width: 500px; margin: auto;">
+    {% csrf_token %}
+
+
+    
+    <div style="margin-bottom: 15px;">
+        <label for="nombre">Nombre completo:</label><br>
+        <input type="text" id="nombre" name="nombre" required style="width: 100%; padding: 8px;">
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <label for="curso">Nombre del curso:</label><br>
+        <select id="curso" name="curso" required style="width: 100%; padding: 8px;">
+            <option value="">Seleccione un curso</option>
+            <option value="Matemáticas">Matemáticas</option>
+            <option value="Historia">Historia</option>
+            <option value="Ciencias">Ciencias</option>
+            <option value="Lengua">Lengua</option>
+        </select>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <label for="correo">Correo electrónico:</label><br>
+        <input type="email" id="correo" name="correo" required style="width: 100%; padding: 8px;">
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <label for="comentarios">Comentarios (opcional):</label><br>
+        <textarea id="comentarios" name="comentarios" rows="4" style="width: 100%; padding: 8px;"></textarea>
+    </div>
+
+    <button type="submit" style="padding: 10px 20px;">Enviar</button>
+</form>

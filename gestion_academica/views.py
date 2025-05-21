@@ -6,37 +6,45 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from .models import ProgramaArtistico, Estudiante, Calificacion, Docente
+from .models import (
+    Inscripcion,
+    ProgramaArtistico,
+    Estudiante,
+    Calificacion,
+    Docente
+)
+
 from .serializers import (
     ProgramaArtisticoSerializer,
     EstudianteSerializer,
-    CalificacionSerializer
+    CalificacionSerializer,
+    InscripcionSerializer
 )
+
 from .permissions import IsDocente, IsEstudiante, IsAdministrador
 
 # -------------------------------------------------------------------
 # VISTAS BASADAS EN CLASES (APIView / ViewSet)
 # -------------------------------------------------------------------
 
-# --- Programa Artístico (solo admins)
 class ProgramaArtisticoViewSet(viewsets.ModelViewSet):
     queryset = ProgramaArtistico.objects.all()
     serializer_class = ProgramaArtisticoSerializer
     permission_classes = [IsAuthenticated, IsAdministrador]
 
-# --- Estudiantes (solo admins)
+
 class EstudianteViewSet(viewsets.ModelViewSet):
     queryset = Estudiante.objects.all()
     serializer_class = EstudianteSerializer
     permission_classes = [IsAuthenticated, IsAdministrador]
 
-# --- Calificaciones (solo docentes)
+
 class CalificacionViewSet(viewsets.ModelViewSet):
     queryset = Calificacion.objects.all()
     serializer_class = CalificacionSerializer
     permission_classes = [IsAuthenticated, IsDocente]
 
-# --- Cargar varias notas (solo docentes)
+
 class CargarNotasView(APIView):
     permission_classes = [IsAuthenticated, IsDocente]
 
@@ -97,14 +105,14 @@ class CargarNotasView(APIView):
             status=status_code
         )
 
-# --- Vista protegida genérica
+
 class MiVistaProtegida(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         return Response({"mensaje": "Solo usuarios autenticados pueden ver esto"})
 
-# --- Ver programas del docente autenticado
+
 class MisProgramasView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -114,7 +122,7 @@ class MisProgramasView(APIView):
         serializer = ProgramaArtisticoSerializer(programas, many=True)
         return Response(serializer.data)
 
-# --- Ver estudiantes por programa (si el docente tiene acceso)
+
 class EstudiantesPorProgramaView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -127,20 +135,52 @@ class EstudiantesPorProgramaView(APIView):
         serializer = EstudianteSerializer(estudiantes, many=True)
         return Response(serializer.data)
 
+
 # -------------------------------------------------------------------
 # VISTAS BASADAS EN FUNCIONES (HTML / Render)
 # -------------------------------------------------------------------
 
-# --- Ver lista de estudiantes (HTML)
 def ver_estudiantes(request):
     estudiantes = Estudiante.objects.all()
     return render(request, 'usuarios/ver_estudiantes.html', {'estudiantes': estudiantes})
 
-# --- Vista de inicio para Secretaría de Cultura (HTML)
+
 def inicio_secretaria(request):
     return render(request, 'usuarios/secretaria_inicio.html')
+
 
 def administrador(request):
     return render(request, 'usuarios/administrador.html')
 
 
+def inscripcion_view(request):
+    if request.method == "POST":
+        nombre = request.POST.get('nombre')
+        curso = request.POST.get('curso')
+        correo = request.POST.get('correo')
+        comentarios = request.POST.get('comentarios', '')
+
+        inscripcion = Inscripcion(
+            nombre=nombre,
+            curso=curso,
+            correo=correo,
+            comentarios=comentarios
+        )
+        inscripcion.save()
+        return redirect('/inscripcion_exitosa/')  # URL correcta
+
+    return render(request, 'inscribir_curso.html')
+
+
+def inscripcion_exitosa_view(request):
+    return render(request, 'inscripcion_exitosa.html')
+
+
+# API para inscripciones (si se usa desde React o similar)
+class InscripcionCreateView(APIView):
+    def post(self, request):
+        serializer = InscripcionSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

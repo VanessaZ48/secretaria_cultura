@@ -71,3 +71,5 @@ def secretaria_inicio(request):
 def inscribir_curso(request):
     return render(request, 'usuarios/inscribir_curso.html')
 
+def inscripcion_exitosa(request):
+    return render(request, 'usuarios/inscripcion_exitosa.html')
