@@ -1,0 +1,21 @@
+{% extends 'usuarios/base.html' %}
+
+{% block content %}
+  <h2>Bienvenido, Administrador {{ request.user.username }}</h2>
+
+  <div>
+    <p>Total de cursos: {{ total_cursos|default:"N/A" }}</p>
+    <p>Total de docentes: {{ total_docentes|default:"N/A" }}</p>
+    <p>Asignaciones pendientes: {{ asignaciones_pendientes|default:"N/A" }}</p>
+  </div>
+
+  <div>
+    <h3>Acciones</h3>
+    <ul>
+      {# Enlaces comentados temporalmente hasta que existan las URLs #}
+      {# <li><a href="{% url 'gestionar_cursos' %}">Gestionar cursos</a></li> #}
+      {# <li><a href="{% url 'asignar_docentes' %}">Asignar docentes</a></li> #}
+      <li><a href="#">Ver estadísticas (gráficas)</a></li>
+    </ul>
+  </div>
+{% endblock %}

@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.contrib.auth import logout
 from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 def login_view(request):
     if request.method == "POST":
@@ -13,7 +14,9 @@ def login_view(request):
         
         if user is not None:
             login(request, user)
-            if user.groups.filter(name='Docente').exists():
+            if user.groups.filter(name='Administrador').exists():
+                return redirect('administrador')
+            elif user.groups.filter(name='Docente').exists():
                 return redirect('vista_notas_docente')
             elif user.groups.filter(name='Estudiante').exists():
                 return redirect('vista_notas_estudiante')
@@ -23,6 +26,16 @@ def login_view(request):
             return render(request, 'usuarios/login.html', {'error': 'Usuario o contraseña incorrectos'})
     
     return render(request, 'usuarios/login.html')
+
+def es_admin(user):
+    return user.is_authenticated and user.groups.filter(name='Administrador').exists()
+
+@login_required
+@user_passes_test(es_admin)
+def administrador(request):
+    grupo = request.user.groups.first().name if request.user.groups.exists() else 'Sin grupo'
+    datos = { 'grupo': grupo }
+    return render(request, 'usuarios/administrador.html', datos)
 
 @login_required
 def vista_notas_docente(request):
@@ -36,10 +49,6 @@ def vista_notas_estudiante(request):
         {'asignatura': 'Lengua', 'nota': 4.0},
     ]
     return render(request, 'usuarios/estudiante.html', {'notas': notas})
-
-@login_required
-def vista_administrador(request):
-    return HttpResponse("Bienvenido Administrador. Panel general.")
 
 @login_required
 def logout_view(request):
@@ -56,7 +65,9 @@ def ver_estudiantes(request):
     return render(request, 'usuarios/ver_estudiantes.html')
 
 
-@login_required
 def secretaria_inicio(request):
     return render(request, 'usuarios/secretaria_inicio.html')
+
+def inscribir_curso(request):
+    return render(request, 'usuarios/inscribir_curso.html')
 

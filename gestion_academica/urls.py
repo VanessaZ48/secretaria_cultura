@@ -16,5 +16,6 @@ urlpatterns = [
     path('mis-programas/', MisProgramasView.as_view(), name='mis_programas'),
     path('programa/<int:programa_id>/estudiantes/', EstudiantesPorProgramaView.as_view(), name='estudiantes_por_programa'),
     
+    
 
 ]

@@ -139,3 +139,8 @@ def ver_estudiantes(request):
 # --- Vista de inicio para Secretaría de Cultura (HTML)
 def inicio_secretaria(request):
     return render(request, 'usuarios/secretaria_inicio.html')
+
+def administrador(request):
+    return render(request, 'usuarios/administrador.html')
+
+

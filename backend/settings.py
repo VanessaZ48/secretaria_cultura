@@ -148,3 +148,5 @@ import os
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static/img/logo.jpg'),
 ]
+
+LOGIN_URL = '/login/'
