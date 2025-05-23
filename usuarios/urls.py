@@ -12,7 +12,9 @@ urlpatterns = [
     path('secretaria/', views.secretaria_inicio, name='secretaria_inicio'),
     path('inscribir_curso/', views.inscribir_curso, name='inscripcion'),
     path('inscripcion_exitosa/', views.inscripcion_exitosa, name='inscripcion_exitosa'),
-    
+    path('logout-secretaria/', views.logout_to_secretaria, name='logout_to_secretaria'),
+
+
     
     
 ]
