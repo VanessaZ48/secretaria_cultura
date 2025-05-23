@@ -153,34 +153,19 @@ def administrador(request):
     return render(request, 'usuarios/administrador.html')
 
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
 def inscripcion_view(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         nombre = request.POST.get('nombre')
         curso = request.POST.get('curso')
         correo = request.POST.get('correo')
-        comentarios = request.POST.get('comentarios', '')
+        comentarios = request.POST.get('comentarios')
 
-        inscripcion = Inscripcion(
-            nombre=nombre,
-            curso=curso,
-            correo=correo,
-            comentarios=comentarios
-        )
-        inscripcion.save()
-        return redirect('/inscripcion_exitosa/')  # URL correcta
+        # Aquí podrías guardar la información en la base de datos si lo necesitas
+
+        messages.success(request, '¡Inscripción exitosa! Gracias por registrarte.')
+        return redirect('inscribir_curso')  # Esto recarga el formulario limpio
 
     return render(request, 'inscribir_curso.html')
-
-
-def inscripcion_exitosa_view(request):
-    return render(request, 'inscripcion_exitosa.html')
-
-
-# API para inscripciones (si se usa desde React o similar)
-class InscripcionCreateView(APIView):
-    def post(self, request):
-        serializer = InscripcionSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

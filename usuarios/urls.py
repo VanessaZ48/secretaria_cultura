@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import inscribir_curso
 
 urlpatterns = [
     path('login/', views.login_view, name='login'),
@@ -14,7 +15,7 @@ urlpatterns = [
     path('inscripcion_exitosa/', views.inscripcion_exitosa, name='inscripcion_exitosa'),
     path('logout-secretaria/', views.logout_to_secretaria, name='logout_to_secretaria'),
 
-
+    path('inscribir_curso/', inscribir_curso, name='inscribir_curso'),
     
     
 ]

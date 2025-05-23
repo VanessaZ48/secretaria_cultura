@@ -1,8 +1,14 @@
-<form method="post" action="{% url 'inscripcion' %}" style="max-width: 500px; margin: auto;">
+<form method="post" action="{% url 'inscribir_curso' %}" style="max-width: 500px; margin: auto;">
     {% csrf_token %}
 
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li style="color: green; font-weight: bold;">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
-    
     <div style="margin-bottom: 15px;">
         <label for="nombre">Nombre completo:</label><br>
         <input type="text" id="nombre" name="nombre" required style="width: 100%; padding: 8px;">
