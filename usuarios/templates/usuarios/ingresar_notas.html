@@ -1,9 +1,294 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Ingresar Notas</title>
-</head>
-<body>
-    <h1>Página para ingresar notas</h1>
-</body>
-</html>
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Ingresar Notas{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(135deg, rgb(233, 229, 229) 0%, rgb(255, 255, 255) 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .main-container {
+        padding: 2rem 0;
+    }
+
+    .header-section,
+    .filter-section,
+    .students-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-title,
+    .students-title {
+        font-weight: 600;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-select,
+    .form-control {
+        border-radius: 15px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 15px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .student-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        display: none;
+    }
+
+    .student-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .student-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+
+    .grade-input-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .save-button {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 0.5rem 1.5rem;
+        color: white;
+        font-weight: 600;
+    }
+
+    .back-button {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        border: none;
+        border-radius: 15px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .no-students {
+        text-align: center;
+        color: #7f8c8d;
+    }
+
+    @media (max-width: 768px) {
+        .grade-input-section {
+            grid-template-columns: 1fr;
+        }
+
+        .student-info {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="container main-container">
+    <!-- Header -->
+    <div class="header-section text-center">
+        <h1><i class="fas fa-clipboard-check text-primary"></i> Ingresar Notas</h1>
+        <p>Gestiona las calificaciones de tus estudiantes de manera eficiente</p>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-section">
+        <h3 class="filter-title"><i class="fas fa-filter text-primary"></i> Seleccionar Curso y Periodo</h3>
+        <form method="GET" id="filterForm">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Curso</label>
+                    <select class="form-select" id="curso" required>
+                        <option value="">Seleccionar curso...</option>
+                        <option value="danza">Danza Contemporánea</option>
+                        <option value="ballet">Ballet Clásico</option>
+                        <option value="teatro">Teatro - Actuación</option>
+                        <option value="musica">Música - Piano</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Periodo</label>
+                    <select class="form-select" id="periodo" required>
+                        <option value="">Seleccionar periodo...</option>
+                        <option value="2024-1">2024 - I</option>
+                        <option value="2024-2">2024 - II</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Corte</label>
+                    <select class="form-select" id="corte" required>
+                        <option value="">Seleccionar corte...</option>
+                        <option value="1">Primer Corte</option>
+                        <option value="2">Segundo Corte</option>
+                    </select>
+                </div>
+            </div>
+            <div class="text-center">
+                <button class="btn btn-primary"><i class="fas fa-search"></i> Buscar Estudiantes</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Estudiantes -->
+    <div class="students-section">
+        <h3 class="students-title"><i class="fas fa-users text-success"></i> Estudiantes Inscritos</h3>
+
+        <div id="noStudents" class="no-students">
+            <i class="fas fa-search fa-2x"></i>
+            <p>Selecciona los filtros arriba para ver estudiantes.</p>
+        </div>
+
+        <!-- Estudiantes por curso -->
+        <div id="danza" class="student-card">
+            <div class="student-info">
+                <div class="student-avatar">MG</div>
+                <div>
+                    <h5>María Gómez</h5>
+                    <p>ID: 101 • Danza Contemporánea</p>
+                </div>
+            </div>
+            <div class="grade-input-section">
+                <input class="form-control" placeholder="Técnica">
+                <input class="form-control" placeholder="Expresión">
+                <input class="form-control" placeholder="Participación">
+                <button class="btn save-button">Guardar</button>
+            </div>
+        </div>
+
+        <div id="ballet" class="student-card">
+            <div class="student-info">
+                <div class="student-avatar">LR</div>
+                <div>
+                    <h5>Lucía Ramírez</h5>
+                    <p>ID: 102 • Ballet Clásico</p>
+                </div>
+            </div>
+            <div class="grade-input-section">
+                <input class="form-control" placeholder="Técnica">
+                <input class="form-control" placeholder="Expresión">
+                <input class="form-control" placeholder="Participación">
+                <button class="btn save-button">Guardar</button>
+            </div>
+        </div>
+
+        <div id="teatro" class="student-card">
+            <div class="student-info">
+                <div class="student-avatar">JP</div>
+                <div>
+                    <h5>Juan Pérez</h5>
+                    <p>ID: 103 • Teatro - Actuación</p>
+                </div>
+            </div>
+            <div class="grade-input-section">
+                <input class="form-control" placeholder="Técnica">
+                <input class="form-control" placeholder="Expresión">
+                <input class="form-control" placeholder="Participación">
+                <button class="btn save-button">Guardar</button>
+            </div>
+        </div>
+
+        <div id="musica" class="student-card">
+            <div class="student-info">
+                <div class="student-avatar">NC</div>
+                <div>
+                    <h5>Nicolás Cardona</h5>
+                    <p>ID: 104 • Música - Piano</p>
+                </div>
+            </div>
+            <div class="grade-input-section">
+                <input class="form-control" placeholder="Técnica">
+                <input class="form-control" placeholder="Expresión">
+                <input class="form-control" placeholder="Participación">
+                <button class="btn save-button">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón volver -->
+    <div class="text-center mt-4">
+        <a href="{% url 'vista_notas_docente' %}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Volver al Panel
+        </a>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+    document.getElementById('filterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const curso = document.getElementById('curso').value;
+
+        // Ocultar todos
+        document.querySelectorAll('.student-card').forEach(card => card.style.display = 'none');
+        document.getElementById('noStudents').style.display = 'none';
+
+        if (curso) {
+            document.getElementById(curso).style.display = 'block';
+        } else {
+            document.getElementById('noStudents').style.display = 'block';
+        }
+    });
+
+    // Guardar botón (solo efecto visual)
+    document.querySelectorAll('.save-button').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            btn.disabled = true;
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-check"></i> Guardado';
+                setTimeout(() => {
+                    btn.innerHTML = original;
+                    btn.disabled = false;
+                }, 1500);
+            }, 1000);
+        });
+    });
+</script>
+{% endblock %}
