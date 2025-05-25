@@ -1,5 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .models import Inscripcion
 
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
@@ -161,11 +164,17 @@ def inscripcion_view(request):
         nombre = request.POST.get('nombre')
         curso = request.POST.get('curso')
         correo = request.POST.get('correo')
-        comentarios = request.POST.get('comentarios')
+        comentarios = request.POST.get('comentarios', '')
 
-        # Aquí podrías guardar la información en la base de datos si lo necesitas
+        # Guardar en la base de datos
+        Inscripcion.objects.create(
+            nombre=nombre,
+            curso=curso,
+            correo=correo,
+            comentarios=comentarios
+        )
 
         messages.success(request, '¡Inscripción exitosa! Gracias por registrarte.')
-        return redirect('inscribir_curso')  # Esto recarga el formulario limpio
+        return redirect('inscribir_curso')
 
-    return render(request, 'inscribir_curso.html')
+    return render(request, 'usuarios/inscribir_curso.html')
