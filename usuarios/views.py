@@ -115,3 +115,8 @@ def inscribir_curso(request):
 
 def inscripcion_exitosa(request):
     return render(request, 'usuarios/inscripcion_exitosa.html')
+
+@login_required
+def vista_notas_docente(request):
+    return render(request, 'usuarios/docente.html')
+

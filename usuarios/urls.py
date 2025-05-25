@@ -14,6 +14,7 @@ urlpatterns = [
     path('inscribir_curso/', views.inscribir_curso, name='inscripcion'),
     path('inscripcion_exitosa/', views.inscripcion_exitosa, name='inscripcion_exitosa'),
     path('logout-secretaria/', views.logout_to_secretaria, name='logout_to_secretaria'),
+    path('docente/', views.vista_notas_docente, name='vista_notas_docente'),
 
     path('inscribir_curso/', inscribir_curso, name='inscribir_curso'),
     

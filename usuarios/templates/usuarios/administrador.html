@@ -1,21 +1,237 @@
 {% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Panel de Administración - Sistema Secretaría de Cultura{% endblock %}
 
 {% block content %}
-  <h2>Bienvenido, Administrador {{ request.user.username }}</h2>
+<div class="container-fluid mt-4">
+    <!-- ENCABEZADO PRINCIPAL -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <!-- TÍTULO PRINCIPAL -->
+            <div class="text-center mb-4">
+                <div class="admin-welcome-section">
+                    <i class="bi bi-shield-check display-4 text-primary mb-3"></i>
+                    <h1 class="text-primary mb-2">Panel de Administración</h1>
+                    <h4 class="text-muted">Bienvenido, <span class="text-primary">{{ request.user.username }}</span></h4>
+                    <p class="text-muted">Sistema de gestión académica - Secretaría de Cultura</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <div>
-    <p>Total de cursos: {{ total_cursos|default:"N/A" }}</p>
-    <p>Total de docentes: {{ total_docentes|default:"N/A" }}</p>
-    <p>Asignaciones pendientes: {{ asignaciones_pendientes|default:"N/A" }}</p>
-  </div>
+    <!-- TARJETAS DE ESTADÍSTICAS -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h5 class="mb-3 text-secondary">
+                <i class="bi bi-graph-up me-2"></i>Resumen General
+            </h5>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card stat-card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-primary text-white mb-3">
+                        <i class="bi bi-book-fill"></i>
+                    </div>
+                    <h3 class="stat-number text-primary mb-2">{{ total_cursos|default:"N/A" }}</h3>
+                    <h6 class="card-title text-muted mb-0">Total de Cursos</h6>
+                    <small class="text-muted">Programas activos</small>
+                </div>
+            </div>
+        </div>
 
-  <div>
-    <h3>Acciones</h3>
-    <ul>
-      {# Enlaces comentados temporalmente hasta que existan las URLs #}
-      {# <li><a href="{% url 'gestionar_cursos' %}">Gestionar cursos</a></li> #}
-      {# <li><a href="{% url 'asignar_docentes' %}">Asignar docentes</a></li> #}
-      <li><a href="#">Ver estadísticas (gráficas)</a></li>
-    </ul>
-  </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card stat-card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-success text-white mb-3">
+                        <i class="bi bi-person-workspace"></i>
+                    </div>
+                    <h3 class="stat-number text-success mb-2">{{ total_docentes|default:"N/A" }}</h3>
+                    <h6 class="card-title text-muted mb-0">Total de Docentes</h6>
+                    <small class="text-muted">Profesores registrados</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card stat-card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-warning text-white mb-3">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <h3 class="stat-number text-warning mb-2">{{ asignaciones_pendientes|default:"N/A" }}</h3>
+                    <h6 class="card-title text-muted mb-0">Asignaciones Pendientes</h6>
+                    <small class="text-muted">Requieren atención</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN DE ACCIONES PRINCIPALES -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h5 class="mb-4 text-secondary">
+                <i class="bi bi-gear-fill me-2"></i>Acciones Principales
+            </h5>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card action-card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="action-icon bg-primary text-white mb-3">
+                        <i class="bi bi-journals"></i>
+                    </div>
+                    <h5 class="card-title text-dark mb-3">Gestionar Cursos</h5>
+                    <p class="card-text text-muted mb-4">Crear, editar y administrar los programas académicos disponibles</p>
+                    <button class="btn btn-primary btn-sm" onclick="mostrarProximamente('Gestión de Cursos')">
+                        <i class="bi bi-plus-circle me-1"></i>Gestionar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card action-card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="action-icon bg-success text-white mb-3">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <h5 class="card-title text-dark mb-3">Asignar Docentes</h5>
+                    <p class="card-text text-muted mb-4">Asignar profesores a los diferentes cursos y programas</p>
+                    <button class="btn btn-success btn-sm" onclick="mostrarProximamente('Asignación de Docentes')">
+                        <i class="bi bi-person-check me-1"></i>Asignar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card action-card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="action-icon bg-info text-white mb-3">
+                        <i class="bi bi-bar-chart-fill"></i>
+                    </div>
+                    <h5 class="card-title text-dark mb-3">Ver Estadísticas</h5>
+                    <p class="card-text text-muted mb-4">Visualizar gráficas y reportes del sistema académico</p>
+                    <button class="btn btn-info btn-sm" onclick="mostrarProximamente('Estadísticas y Reportes')">
+                        <i class="bi bi-graph-up me-1"></i>Ver Reportes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+ 
+
+
+<style>
+    .admin-welcome-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 15px;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        font-size: 1.5rem;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+
+    .action-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 15px;
+    }
+
+    .action-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+    }
+
+    .action-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        font-size: 1.8rem;
+    }
+
+    .text-primary {
+        color: rgb(42, 59, 43) !important;
+    }
+    
+    .bg-primary {
+        background-color: rgb(42, 59, 43) !important;
+    }
+    
+    .btn-primary {
+        background-color: rgb(42, 59, 43);
+        border-color: rgb(42, 59, 43);
+    }
+    
+    .btn-outline-primary {
+        color: rgb(42, 59, 43);
+        border-color: rgb(42, 59, 43);
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: rgb(42, 59, 43);
+        border-color: rgb(42, 59, 43);
+    }
+
+    .card {
+        border-radius: 15px;
+    }
+
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+</style>
+
+<!-- JAVASCRIPT PARA FUNCIONALIDAD -->
+<script>
+    // Función para mostrar mensaje de "próximamente"
+    function mostrarProximamente(funcionalidad) {
+        alert(`La funcionalidad "${funcionalidad}" estará disponible próximamente.\n\n¡Gracias por tu paciencia!`);
+    }
+
+    // Animación de entrada para las tarjetas
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.stat-card, .action-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+</script>
 {% endblock %}
