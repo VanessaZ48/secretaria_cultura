@@ -10,8 +10,8 @@
         <h4>Bienvenido</h4>
       </div>
       <div class="card-body">
-        <h4 class="m-0"> Vanessa Zapata - Estudiante de MUSICA </h4>
-        <p class="Title">Curso: 148</p>
+        <h4 class="m-0">{{ estudiante.nombre }} {{ estudiante.apellido }} - Estudiante de {{ programa.nombre }}</h4>
+        <p class="Title">Curso: {{ programa.id }}</p>
         <p class="lead">Aquí puedes ver tus notas:</p>
         <table class="table table-striped">
           <thead>
@@ -25,6 +25,10 @@
             <tr>
               <td>{{ nota.asignatura }}</td>
               <td>{{ nota.nota }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2">No tienes notas registradas.</td>
             </tr>
             {% endfor %}
           </tbody>

@@ -11,6 +11,7 @@ class ProgramaArtistico(models.Model):
         return self.nombre
 
 class Estudiante(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True) 
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100, blank=True, null=True)
     correo = models.EmailField(unique=True)

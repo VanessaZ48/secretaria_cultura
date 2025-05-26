@@ -78,14 +78,33 @@ def vista_notas_docente(request):
     return render(request, 'usuarios/docente.html')
 
 
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+
 @login_required
 def vista_notas_estudiante(request):
-    notas = [
-        {'asignatura': 'Matemáticas', 'nota': 3.5},
-        {'asignatura': 'Historia', 'nota': 2.5},
-        {'asignatura': 'Lengua', 'nota': 4.0},
-    ]
-    return render(request, 'usuarios/estudiante.html', {'notas': notas})
+    # Obtener el estudiante asociado al usuario logueado
+    estudiante = get_object_or_404(Estudiante, usuario=request.user)
+
+    # Obtener las calificaciones del estudiante (puedes mostrar todas o filtrar por periodo, etc.)
+    calificaciones = estudiante.calificaciones.all()
+
+    # Construir la lista de notas para pasar al template
+    notas = []
+    for cal in calificaciones:
+        notas.append({
+            'asignatura': estudiante.programa.nombre,
+            'nota': cal.nota,
+            'periodo': cal.periodo,
+        })
+
+    # Pasar también el estudiante y programa para mostrar nombre y curso en el template
+    contexto = {
+        'notas': notas,
+        'estudiante': estudiante,
+        'programa': estudiante.programa,
+    }
+    return render(request, 'usuarios/estudiante.html', contexto)
 
 
 # ======================
