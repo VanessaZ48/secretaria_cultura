@@ -5,127 +5,7 @@
 
 {% block content %}
 <style>
-    body {
-        background: linear-gradient(135deg, rgb(233, 229, 229) 0%, rgb(255, 255, 255) 100%);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    .main-container {
-        padding: 2rem 0;
-    }
-
-    .header-section,
-    .filter-section,
-    .students-section {
-        background: white;
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
-
-    .filter-title,
-    .students-title {
-        font-weight: 600;
-        color: #2c3e50;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .form-select,
-    .form-control {
-        border-radius: 15px;
-        border: 2px solid #e9ecef;
-        padding: 0.75rem 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        border-radius: 15px;
-        padding: 0.75rem 2rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-
-    .student-card {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        border: 2px solid transparent;
-        transition: all 0.3s ease;
-        display: none;
-    }
-
-    .student-info {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .student-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 600;
-        font-size: 1.2rem;
-    }
-
-    .grade-input-section {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-
-    .save-button {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        border: none;
-        border-radius: 10px;
-        padding: 0.5rem 1.5rem;
-        color: white;
-        font-weight: 600;
-    }
-
-    .back-button {
-        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-        border: none;
-        border-radius: 15px;
-        padding: 0.75rem 2rem;
-        color: white;
-        font-weight: 600;
-        text-decoration: none;
-    }
-
-    .no-students {
-        text-align: center;
-        color: #7f8c8d;
-    }
-
-    @media (max-width: 768px) {
-        .grade-input-section {
-            grid-template-columns: 1fr;
-        }
-
-        .student-info {
-            flex-direction: column;
-            text-align: center;
-        }
-    }
+    /* Puedes mantener tus estilos existentes aquí */
 </style>
 
 <div class="container main-container">
@@ -135,160 +15,125 @@
         <p>Gestiona las calificaciones de tus estudiantes de manera eficiente</p>
     </div>
 
+    <!-- Mostrar mensajes -->
+    {% if messages %}
+        <div class="mb-3">
+            {% for message in messages %}
+                <div 
+                    class="alert 
+                    {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" 
+                    role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <!-- Filtros -->
     <div class="filter-section">
         <h3 class="filter-title"><i class="fas fa-filter text-primary"></i> Seleccionar Curso y Periodo</h3>
         <form method="GET" id="filterForm">
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">Curso</label>
-                    <select class="form-select" id="curso" required>
+                    <label for="curso" class="form-label">Curso</label>
+                    <select class="form-select" id="curso" name="curso" required>
                         <option value="">Seleccionar curso...</option>
-                        <option value="danza">Danza Contemporánea</option>
-                        <option value="ballet">Ballet Clásico</option>
-                        <option value="teatro">Teatro - Actuación</option>
-                        <option value="musica">Música - Piano</option>
+                        {% for curso in cursos %}
+                            <option value="{{ curso.nombre }}" {% if curso.nombre == curso_seleccionado %}selected{% endif %}>{{ curso.nombre }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">Periodo</label>
-                    <select class="form-select" id="periodo" required>
+                    <label for="periodo" class="form-label">Periodo</label>
+                    <select class="form-select" id="periodo" name="periodo" required>
                         <option value="">Seleccionar periodo...</option>
-                        <option value="2024-1">2024 - I</option>
-                        <option value="2024-2">2024 - II</option>
+                        <option value="2024-1" {% if periodo == "2024-1" %}selected{% endif %}>2024 - I</option>
+                        <option value="2024-2" {% if periodo == "2024-2" %}selected{% endif %}>2024 - II</option>
                     </select>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">Corte</label>
-                    <select class="form-select" id="corte" required>
+                    <label for="corte" class="form-label">Corte</label>
+                    <select class="form-select" id="corte" name="corte" required>
                         <option value="">Seleccionar corte...</option>
-                        <option value="1">Primer Corte</option>
-                        <option value="2">Segundo Corte</option>
+                        <option value="1" {% if corte == "1" %}selected{% endif %}>Primer Corte</option>
+                        <option value="2" {% if corte == "2" %}selected{% endif %}>Segundo Corte</option>
                     </select>
                 </div>
             </div>
             <div class="text-center">
-                <button class="btn btn-primary"><i class="fas fa-search"></i> Buscar Estudiantes</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Buscar Estudiantes</button>
             </div>
         </form>
     </div>
 
-    <!-- Estudiantes -->
+    <!-- Estudiantes y formulario para notas -->
     <div class="students-section">
         <h3 class="students-title"><i class="fas fa-users text-success"></i> Estudiantes Inscritos</h3>
 
-        <div id="noStudents" class="no-students">
-            <i class="fas fa-search fa-2x"></i>
-            <p>Selecciona los filtros arriba para ver estudiantes.</p>
-        </div>
+        {% if estudiantes %}
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="curso" value="{{ curso_seleccionado }}">
+                <input type="hidden" name="periodo" value="{{ periodo }}">
+                <input type="hidden" name="corte" value="{{ corte }}">
 
-        <!-- Estudiantes por curso -->
-        <div id="danza" class="student-card">
-            <div class="student-info">
-                <div class="student-avatar">MG</div>
-                <div>
-                    <h5>María Gómez</h5>
-                    <p>ID: 101 • Danza Contemporánea</p>
-                </div>
-            </div>
-            <div class="grade-input-section">
-                <input class="form-control" placeholder="Técnica">
-                <input class="form-control" placeholder="Expresión">
-                <input class="form-control" placeholder="Participación">
-                <button class="btn save-button">Guardar</button>
-            </div>
-        </div>
+                {% for estudiante in estudiantes %}
+                    <div class="student-row mb-4 p-3 border rounded shadow-sm">
+                        <div class="student-info mb-2">
+                            <strong>{{ estudiante.nombre }}</strong> (ID: {{ estudiante.id }})
+                        </div>
 
-        <div id="ballet" class="student-card">
-            <div class="student-info">
-                <div class="student-avatar">LR</div>
-                <div>
-                    <h5>Lucía Ramírez</h5>
-                    <p>ID: 102 • Ballet Clásico</p>
-                </div>
-            </div>
-            <div class="grade-input-section">
-                <input class="form-control" placeholder="Técnica">
-                <input class="form-control" placeholder="Expresión">
-                <input class="form-control" placeholder="Participación">
-                <button class="btn save-button">Guardar</button>
-            </div>
-        </div>
+                        <div class="grade-input-section row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Nota</label>
+                                <input
+                                    type="number"
+                                    name="nota_{{ estudiante.id }}"
+                                    min="0"
+                                    max="100"
+                                    step="0.1"
+                                    class="form-control"
+                                    placeholder="Nota final"
+                                    required
+                                    value="{% if estudiante.nota %}{{ estudiante.nota.nota }}{% endif %}"
+                                >
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Observaciones</label>
+                                <textarea
+                                    name="observacion_{{ estudiante.id }}"
+                                    class="form-control"
+                                    rows="2"
+                                    placeholder="Opcional"
+                                >{% if estudiante.nota %}{{ estudiante.nota.observaciones }}{% endif %}</textarea>
+                            </div>
+                        </div>
 
-        <div id="teatro" class="student-card">
-            <div class="student-info">
-                <div class="student-avatar">JP</div>
-                <div>
-                    <h5>Juan Pérez</h5>
-                    <p>ID: 103 • Teatro - Actuación</p>
-                </div>
-            </div>
-            <div class="grade-input-section">
-                <input class="form-control" placeholder="Técnica">
-                <input class="form-control" placeholder="Expresión">
-                <input class="form-control" placeholder="Participación">
-                <button class="btn save-button">Guardar</button>
-            </div>
-        </div>
+                        <input type="hidden" name="estudiante_id" value="{{ estudiante.id }}">
+                    </div>
+                {% endfor %}
 
-        <div id="musica" class="student-card">
-            <div class="student-info">
-                <div class="student-avatar">NC</div>
-                <div>
-                    <h5>Nicolás Cardona</h5>
-                    <p>ID: 104 • Música - Piano</p>
+                <div class="text-center mt-4">
+                    <button type="submit" class="save-button btn btn-success">
+                        <i class="fas fa-save"></i> Guardar Notas
+                    </button>
                 </div>
+            </form>
+        {% else %}
+            <div class="no-students mt-4 text-center">
+                <i class="fas fa-search fa-2x text-muted"></i>
+                <p>Selecciona los filtros arriba para ver estudiantes.</p>
             </div>
-            <div class="grade-input-section">
-                <input class="form-control" placeholder="Técnica">
-                <input class="form-control" placeholder="Expresión">
-                <input class="form-control" placeholder="Participación">
-                <button class="btn save-button">Guardar</button>
-            </div>
-        </div>
+        {% endif %}
     </div>
 
     <!-- Botón volver -->
     <div class="text-center mt-4">
-        <a href="{% url 'vista_notas_docente' %}" class="back-button">
+        <a href="{% url 'vista_notas_docente' %}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Volver al Panel
         </a>
     </div>
 </div>
 
-<!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-<script>
-    document.getElementById('filterForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const curso = document.getElementById('curso').value;
-
-        // Ocultar todos
-        document.querySelectorAll('.student-card').forEach(card => card.style.display = 'none');
-        document.getElementById('noStudents').style.display = 'none';
-
-        if (curso) {
-            document.getElementById(curso).style.display = 'block';
-        } else {
-            document.getElementById('noStudents').style.display = 'block';
-        }
-    });
-
-    // Guardar botón (solo efecto visual)
-    document.querySelectorAll('.save-button').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const original = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-            btn.disabled = true;
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fas fa-check"></i> Guardado';
-                setTimeout(() => {
-                    btn.innerHTML = original;
-                    btn.disabled = false;
-                }, 1500);
-            }, 1000);
-        });
-    });
-</script>
-{% endblock %}
+{% endblock %}

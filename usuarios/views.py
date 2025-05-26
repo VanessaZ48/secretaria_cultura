@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
+from gestion_academica.models import Estudiante, ProgramaArtistico, Calificacion
 
 
 # ======================
@@ -93,12 +94,66 @@ def vista_notas_estudiante(request):
 
 @login_required
 def ingresar_notas(request):
-    return render(request, 'usuarios/ingresar_notas.html')
+    cursos = ProgramaArtistico.objects.all()
+    estudiantes = []
+    curso_seleccionado = request.GET.get('curso')
+    periodo = request.GET.get('periodo')
+    corte = request.GET.get('corte')  # Solo para filtros
 
+    if curso_seleccionado and periodo and corte:
+        estudiantes = Estudiante.objects.filter(
+            programa__nombre=curso_seleccionado
+        ).order_by('nombre')
+
+        # Agregar calificación previa si existe
+        for estudiante in estudiantes:
+            estudiante.nota = Calificacion.objects.filter(
+                estudiante=estudiante,
+                periodo=periodo
+            ).first()
+
+    if request.method == 'POST':
+        estudiantes_ids = request.POST.getlist('estudiante_id')
+        periodo = request.POST.get('periodo')
+
+        for est_id in estudiantes_ids:
+            nota_valor = request.POST.get(f'nota_{est_id}')
+            observacion = request.POST.get(f'observacion_{est_id}', '')
+
+            if nota_valor:
+                try:
+                    nota_valor = float(nota_valor)
+                    Calificacion.objects.update_or_create(
+                        estudiante_id=est_id,
+                        periodo=periodo,
+                        defaults={
+                            'nota': nota_valor,
+                            'observaciones': observacion
+                        }
+                    )
+                except ValueError:
+                    continue  # Si nota no es un número, ignorar
+
+        messages.success(request, "Notas guardadas correctamente.")
+        return redirect(request.path + f"?curso={curso_seleccionado}&periodo={periodo}&corte={corte}")
+
+    context = {
+        'cursos': cursos,
+        'estudiantes': estudiantes,
+        'curso_seleccionado': curso_seleccionado,
+        'periodo': periodo,
+        'corte': corte,
+    }
+    return render(request, 'usuarios/ingresar_notas.html', context)
 
 @login_required
 def ver_estudiantes(request):
-    return render(request, 'usuarios/ver_estudiantes.html')
+    estudiantes = Estudiante.objects.select_related('programa').all().order_by('nombre')
+    programas = ProgramaArtistico.objects.all().order_by('nombre')
+    return render(request, 'usuarios/ver_estudiantes.html', {
+        'estudiantes': estudiantes,
+        'programas': programas
+    })
 
 
 # ======================
@@ -152,3 +207,4 @@ def inscripcion_view(request):
     else:
         cursos = ProgramaArtistico.objects.all()
         return render(request, 'usuarios/inscribir_curso.html', {'cursos': cursos})
+

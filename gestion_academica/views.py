@@ -1,34 +1,21 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from .models import Inscripcion
-from gestion_academica.models import Estudiante, ProgramaArtistico
-
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from .models import (
-    Inscripcion,
-    ProgramaArtistico,
-    Estudiante,
-    Calificacion,
-    Docente
-)
-
+from .models import ProgramaArtistico, Estudiante, Calificacion, Docente, Inscripcion
 from .serializers import (
     ProgramaArtisticoSerializer,
     EstudianteSerializer,
     CalificacionSerializer,
-    InscripcionSerializer
 )
+from .permissions import IsDocente, IsAdministrador
 
-from .permissions import IsDocente, IsEstudiante, IsAdministrador
 
 # -------------------------------------------------------------------
-# VISTAS BASADAS EN CLASES (APIView / ViewSet)
+# VISTAS API BASADAS EN CLASES
 # -------------------------------------------------------------------
 
 class ProgramaArtisticoViewSet(viewsets.ModelViewSet):
@@ -49,21 +36,47 @@ class CalificacionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsDocente]
 
 
+class MisProgramasView(APIView):
+    permission_classes = [IsAuthenticated, IsDocente]
+
+    def get(self, request):
+        docente = Docente.objects.get(usuario=request.user)
+        programas = docente.programas.all()
+        serializer = ProgramaArtisticoSerializer(programas, many=True)
+        return Response(serializer.data)
+
+
+class EstudiantesPorProgramaView(APIView):
+    permission_classes = [IsAuthenticated, IsDocente]
+
+    def get(self, request, programa_id):
+        docente = Docente.objects.get(usuario=request.user)
+
+        if not docente.programas.filter(id=programa_id).exists():
+            return Response({'error': 'No autorizado para ver este programa'}, status=403)
+
+        estudiantes = Estudiante.objects.filter(programa__id=programa_id)
+        serializer = EstudianteSerializer(estudiantes, many=True)
+        return Response(serializer.data)
+
+
 class CargarNotasView(APIView):
     permission_classes = [IsAuthenticated, IsDocente]
 
     def post(self, request):
-        notas = request.data
+        datos = request.data
         exitosas = []
         errores = []
 
-        if not isinstance(notas, list) or not notas:
+        if not isinstance(datos, list):
             return Response(
-                {"error": "Debe enviar una lista de notas no vacía"},
+                {"error": "Debe enviar una lista de notas"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        for item in notas:
+        docente = Docente.objects.get(usuario=request.user)
+
+        for item in datos:
             documento = item.get("documento")
             periodo = item.get("periodo")
             nota = item.get("nota")
@@ -78,7 +91,15 @@ class CargarNotasView(APIView):
 
             try:
                 estudiante = Estudiante.objects.get(documento=documento)
-                calificacion, creada = Calificacion.objects.update_or_create(
+
+                if not docente.programas.filter(id=estudiante.programa.id).exists():
+                    errores.append({
+                        "documento": documento,
+                        "error": "No autorizado para calificar a este estudiante"
+                    })
+                    continue
+
+                calificacion, _ = Calificacion.objects.update_or_create(
                     estudiante=estudiante,
                     periodo=periodo,
                     defaults={
@@ -93,60 +114,23 @@ class CargarNotasView(APIView):
                     "documento": documento,
                     "error": "Estudiante no encontrado"
                 })
-            except Exception as e:
-                errores.append({
-                    "documento": documento,
-                    "error": str(e)
-                })
 
         status_code = status.HTTP_201_CREATED if exitosas else status.HTTP_400_BAD_REQUEST
-
-        return Response(
-            {
-                "notas_registradas": exitosas,
-                "errores": errores
-            },
-            status=status_code
-        )
-
-
-class MiVistaProtegida(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        return Response({"mensaje": "Solo usuarios autenticados pueden ver esto"})
-
-
-class MisProgramasView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        docente = Docente.objects.get(usuario=request.user)
-        programas = docente.programas.all()
-        serializer = ProgramaArtisticoSerializer(programas, many=True)
-        return Response(serializer.data)
-
-
-class EstudiantesPorProgramaView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, programa_id):
-        docente = Docente.objects.get(usuario=request.user)
-        if not docente.programas.filter(id=programa_id).exists():
-            return Response({'error': 'No autorizado para ver este programa'}, status=403)
-
-        estudiantes = Estudiante.objects.filter(programa__id=programa_id)
-        serializer = EstudianteSerializer(estudiantes, many=True)
-        return Response(serializer.data)
+        return Response({
+            "notas_registradas": exitosas,
+            "errores": errores
+        }, status=status_code)
 
 
 # -------------------------------------------------------------------
-# VISTAS BASADAS EN FUNCIONES (HTML / Render)
+# VISTAS HTML (basadas en funciones)
 # -------------------------------------------------------------------
+
 
 def ver_estudiantes(request):
     estudiantes = Estudiante.objects.all()
     return render(request, 'usuarios/ver_estudiantes.html', {'estudiantes': estudiantes})
+
 
 
 def inicio_secretaria(request):
@@ -158,4 +142,5 @@ def administrador(request):
 
 
 def inscripcion_view(request):
-    return render(request, 'usuarios/inscribir_curso.html')
+    programas = ProgramaArtistico.objects.all()
+    return render(request, 'usuarios/inscribir_curso.html', {'programas': programas})

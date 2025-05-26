@@ -21,16 +21,33 @@ class Estudiante(models.Model):
         return f"{self.nombre} {self.apellido}"
 
 class Calificacion(models.Model):
-    estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
-    periodo = models.CharField(max_length=10)
-    nota = models.FloatField()
-    observaciones = models.TextField(blank=True, null=True)
+    estudiante = models.ForeignKey(
+        'Estudiante',  # Relación con modelo Estudiante
+        on_delete=models.CASCADE,
+        related_name='calificaciones'
+    )
+    periodo = models.CharField(
+        max_length=10,
+        help_text="Periodo académico, e.g. '2024-1', '2024-2'"
+    )
+    nota = models.FloatField(
+        help_text="Nota obtenida por el estudiante en el periodo"
+    )
+    observaciones = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Observaciones adicionales sobre la calificación"
+    )
 
     class Meta:
-        unique_together = ('estudiante', 'periodo')  # Evita duplicados
+        unique_together = ('estudiante', 'periodo')  # Evita calificaciones duplicadas para un mismo estudiante y periodo
+        ordering = ['estudiante', 'periodo']  # Ordena por estudiante y periodo por defecto
+        verbose_name = "Calificación"
+        verbose_name_plural = "Calificaciones"
 
     def __str__(self):
         return f"{self.estudiante.nombre} - {self.periodo}: {self.nota}"
+
 
 
 class Docente(models.Model):
@@ -43,7 +60,7 @@ class Docente(models.Model):
 
 class Inscripcion(models.Model):
     nombre = models.CharField(max_length=100)
-    apellido = models.CharField(max_length=100)  
+    apellido = models.CharField(max_length=100)  # Asegúrate de tener este campo
     curso = models.ForeignKey(ProgramaArtistico, on_delete=models.CASCADE)
     correo = models.EmailField()
     comentarios = models.TextField(blank=True, null=True)
