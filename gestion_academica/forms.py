@@ -1,9 +1,5 @@
-# forms.py
-
 from django import forms
-from .models import Estudiante
+from gestion_academica.models import ProgramaArtistico
 
-class EstudianteForm(forms.ModelForm):
-    class Meta:
-        model = Estudiante
-        fields = ['nombre', 'correo', 'documento', 'programa']
+class InscripcionForm(forms.Form):
+    programa = forms.ModelChoiceField(queryset=ProgramaArtistico.objects.all(), label="Curso")

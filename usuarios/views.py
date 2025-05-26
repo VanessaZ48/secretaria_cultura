@@ -108,15 +108,47 @@ def ver_estudiantes(request):
 def secretaria_inicio(request):
     return render(request, 'usuarios/secretaria_inicio.html')
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from gestion_academica.models import ProgramaArtistico, Inscripcion
 
-def inscribir_curso(request):
-    return render(request, 'usuarios/inscribir_curso.html')
+
+def inscripcion_view(request):
+    if request.method == "POST":
+        nombre = request.POST.get('nombre')
+        apellido = request.POST.get('apellido')
+        nombre_curso = request.POST.get('curso')
+        correo = request.POST.get('correo')
+        comentarios = request.POST.get('comentarios')
+        fecha_inscripcion = request.POST.get('fecha_inscripcion')
 
 
-def inscripcion_exitosa(request):
-    return render(request, 'usuarios/inscripcion_exitosa.html')
+        if not nombre_curso:
+            messages.error(request, "Debe seleccionar un curso.")
+            return redirect('inscribir_curso')
 
-@login_required
-def vista_notas_docente(request):
-    return render(request, 'usuarios/docente.html')
+        try:
+            programa = ProgramaArtistico.objects.get(nombre=nombre_curso)
 
+            Inscripcion.objects.create(
+                nombre=nombre,
+                apellido=apellido,
+                curso=programa,
+                correo=correo,
+                comentarios=comentarios,
+                fecha_inscripcion=fecha_inscripcion
+            )
+
+            messages.success(
+                request,
+                f"Inscripción exitosa en {programa.nombre} para {nombre} {apellido}"
+            )
+
+        except ProgramaArtistico.DoesNotExist:
+            messages.error(request, "El curso seleccionado no existe.")
+
+        return redirect('inscribir_curso')
+
+    else:
+        cursos = ProgramaArtistico.objects.all()
+        return render(request, 'usuarios/inscribir_curso.html', {'cursos': cursos})

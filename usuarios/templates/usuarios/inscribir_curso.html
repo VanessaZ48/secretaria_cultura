@@ -1,39 +1,33 @@
-<form method="post" action="{% url 'inscribir_curso' %}" style="max-width: 500px; margin: auto;">
+<script>
+  {% if messages %}
+    {% for message in messages %}
+      alert("{{ message|escapejs }}");
+    {% endfor %}
+  {% endif %}
+</script>
+
+<form method="POST" action="{% url 'inscribir_curso' %}">
     {% csrf_token %}
+    
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" name="nombre" required>
 
-    {% if messages %}
-        <ul>
-            {% for message in messages %}
-                <li style="color: green; font-weight: bold;">{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+    <label for="apellido">Apellido:</label>
+    <input type="text" id="apellido" name="apellido" required>
 
-    <div style="margin-bottom: 15px;">
-        <label for="nombre">Nombre completo:</label><br>
-        <input type="text" id="nombre" name="nombre" required style="width: 100%; padding: 8px;">
-    </div>
+    <label for="curso">Seleccione un curso:</label>
+    <select id="curso" name="curso" required>
+        <option value="" disabled selected>-- Elige un curso --</option>
+        {% for curso in cursos %}
+            <option value="{{ curso.nombre }}">{{ curso.nombre }}</option>
+        {% endfor %}
+    </select>
 
-    <div style="margin-bottom: 15px;">
-        <label for="curso">Nombre del curso:</label><br>
-        <select id="curso" name="curso" required style="width: 100%; padding: 8px;">
-            <option value="">Seleccione un curso</option>
-            <option value="Matemáticas">Matemáticas</option>
-            <option value="Historia">Historia</option>
-            <option value="Ciencias">Ciencias</option>
-            <option value="Lengua">Lengua</option>
-        </select>
-    </div>
+    <label for="correo">Correo electrónico:</label>
+    <input type="email" id="correo" name="correo" required>
 
-    <div style="margin-bottom: 15px;">
-        <label for="correo">Correo electrónico:</label><br>
-        <input type="email" id="correo" name="correo" required style="width: 100%; padding: 8px;">
-    </div>
+    <label for="comentarios">Comentarios:</label>
+    <textarea id="comentarios" name="comentarios"></textarea>
 
-    <div style="margin-bottom: 15px;">
-        <label for="comentarios">Comentarios (opcional):</label><br>
-        <textarea id="comentarios" name="comentarios" rows="4" style="width: 100%; padding: 8px;"></textarea>
-    </div>
-
-    <button type="submit" style="padding: 10px 20px;">Enviar</button>
+    <button type="submit">Inscribirme</button>
 </form>

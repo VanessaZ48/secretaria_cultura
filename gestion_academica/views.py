@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from .models import Inscripcion
+from gestion_academica.models import Estudiante, ProgramaArtistico
 
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
@@ -156,25 +157,5 @@ def administrador(request):
     return render(request, 'usuarios/administrador.html')
 
 
-from django.shortcuts import render, redirect
-from django.contrib import messages
-
 def inscripcion_view(request):
-    if request.method == 'POST':
-        nombre = request.POST.get('nombre')
-        curso = request.POST.get('curso')
-        correo = request.POST.get('correo')
-        comentarios = request.POST.get('comentarios', '')
-
-        # Guardar en la base de datos
-        Inscripcion.objects.create(
-            nombre=nombre,
-            curso=curso,
-            correo=correo,
-            comentarios=comentarios
-        )
-
-        messages.success(request, '¡Inscripción exitosa! Gracias por registrarte.')
-        return redirect('inscribir_curso')
-
     return render(request, 'usuarios/inscribir_curso.html')
