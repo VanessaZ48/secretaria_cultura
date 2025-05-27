@@ -1,33 +1,609 @@
-<script>
-  {% if messages %}
-    {% for message in messages %}
-      alert("{{ message|escapejs }}");
-    {% endfor %}
-  {% endif %}
-</script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscribir Cursos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+       
+    :root {
+        --primary-color: rgb(42, 59, 43);
+        --primary-light: rgba(42, 59, 43, 0.1);
+        --primary-gradient: linear-gradient(135deg, rgb(42, 59, 43) 0%, rgb(58, 82, 60) 100%);
+        --success-color: #28a745;
+        --info-color: #17a2b8;
+        --warning-color: #ffc107;
+        --light-bg: #f8f9fa;
+        --white: #ffffff;
+        --shadow: 0 4px 15px rgba(0,0,0,0.1);
+        --shadow-hover: 0 8px 30px rgba(0,0,0,0.15);
+    }
 
-<form method="POST" action="{% url 'inscribir_curso' %}">
-    {% csrf_token %}
+        {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg,rgb(163, 163, 166) 0%,rgb(149, 143, 155) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
     
-    <label for="nombre">Nombre:</label>
-    <input type="text" id="nombre" name="nombre" required>
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 118, 117, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255, 177, 153, 0.3) 0%, transparent 50%);
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
 
-    <label for="apellido">Apellido:</label>
-    <input type="text" id="apellido" name="apellido" required>
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-    <label for="curso">Seleccione un curso:</label>
-    <select id="curso" name="curso" required>
-        <option value="" disabled selected>-- Elige un curso --</option>
-        {% for curso in cursos %}
-            <option value="{{ curso.nombre }}">{{ curso.nombre }}</option>
-        {% endfor %}
-    </select>
+   
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
 
-    <label for="correo">Correo electrónico:</label>
-    <input type="email" id="correo" name="correo" required>
+   
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary-color),rgb(49, 130, 80));
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: pulse 3s ease-in-out infinite;
+        }
 
-    <label for="comentarios">Comentarios:</label>
-    <textarea id="comentarios" name="comentarios"></textarea>
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.1; }
+            50% { transform: scale(1.1); opacity: 0.2; }
+        }
 
-    <button type="submit">Inscribirme</button>
-</form>
+        
+        .form-header {
+            text-align: center;
+            margin-bottom: 35px;
+            position: relative;
+        }
+
+        .form-header h1 {
+            color: var(--secondary-color);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary-color), #5dade2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-header p {
+            color: #6c757d;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .form-header::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+            margin: 20px auto 0;
+            border-radius: 2px;
+        }
+
+      
+        .inscription-form {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .form-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.9);
+            transition: var(--transition);
+            outline: none;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .form-group input:hover,
+        .form-group select:hover,
+        .form-group textarea:hover {
+            border-color: #cbd3da;
+            transform: translateY(-1px);
+        }
+
+        /* Estilos específicos para diferentes tipos de input */
+        .form-group select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            appearance: none;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+            max-height: 200px;
+        }
+
+      
+        .form-group input:valid:not(:placeholder-shown),
+        .form-group select:valid,
+        .form-group textarea:valid {
+            border-color: var(--success-color);
+        }
+
+        .form-group input:invalid:not(:placeholder-shown) {
+            border-color: var(--danger-color);
+        }
+
+      
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary-color), #5dade2);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+            position: relative;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(52, 152, 219, 0.4);
+            background: linear-gradient(135deg, #2980b9, var(--primary-color));
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Botón volver */
+        .back-btn {
+            background: linear-gradient(135deg, #6c757d, #95a5a6);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            align-self: center;
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+        }
+
+        .back-btn:hover {
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(108, 117, 125, 0.4);
+            background: linear-gradient(135deg, #5a6268, #6c757d);
+        }
+
+        /* Alertas modernas */
+        .custom-alert {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            color: #0c5460;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        .custom-alert.success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border-left-color: var(--success-color);
+        }
+
+        .custom-alert.error {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border-left-color: var(--danger-color);
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        
+        .form-group label i,
+        .submit-btn i,
+        .back-btn i {
+            transition: var(--transition);
+        }
+
+        .form-group:hover label i {
+            color: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        .submit-btn:hover i {
+            transform: translateX(3px);
+        }
+
+        .back-btn:hover i {
+            transform: translateX(-3px);
+        }
+
+  
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            .form-header h1 {
+                font-size: 2rem;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                padding: 12px 15px;
+            }
+
+            .submit-btn {
+                padding: 15px 30px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 430px) {
+            .form-container {
+                padding: 25px 15px;
+            }
+
+            .form-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .form-group {
+                gap: 20px;
+            }
+        }
+
+        
+        .form-container {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+    
+        .submit-btn.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .submit-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <!-- Header del formulario -->
+        <div class="form-header">
+            <h1><i class="fas fa-graduation-cap"></i> Inscribir Cursos</h1>
+            <p>Únete a nuestros cursos y comienza tu aprendizaje</p>
+        </div>
+
+        <!-- Contenedor para mensajes -->
+        <div id="message-container"></div>
+
+        <!-- Formulario -->
+        <form method="POST" action="{% url 'inscribir_curso' %}" class="inscription-form" id="inscriptionForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="nombre">
+                    <i class="fas fa-user"></i>
+                    Nombre
+                </label>
+                <input type="text" id="nombre" name="nombre" required placeholder="Ingresa tu nombre">
+            </div>
+
+            <div class="form-group">
+                <label for="apellido">
+                    <i class="fas fa-user-tag"></i>
+                    Apellido
+                </label>
+                <input type="text" id="apellido" name="apellido" required placeholder="Ingresa tu apellido">
+            </div>
+
+            <div class="form-group">
+                <label for="curso">
+                    <i class="fas fa-book"></i>
+                    Selecciona un curso
+                </label>
+                <select id="curso" name="curso" required>
+                    <option value="" disabled selected>-- Elige un curso --</option>
+                    {% for curso in cursos %}
+                        <option value="{{ curso.nombre }}">{{ curso.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="correo">
+                    <i class="fas fa-envelope"></i>
+                    Correo electrónico
+                </label>
+                <input type="email" id="correo" name="correo" required placeholder="ejemplo@correo.com">
+            </div>
+
+            <div class="form-group">
+                <label for="comentarios">
+                    <i class="fas fa-comment-alt"></i>
+                    Comentarios (Opcional)
+                </label>
+                <textarea id="comentarios" name="comentarios" placeholder="Cuéntanos sobre tus expectativas o preguntas..."></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <i class="fas fa-paper-plane"></i>
+                Inscribirme
+            </button>
+
+            <a href="#" class="back-btn" onclick="history.back(); return false;">
+                <i class="fas fa-arrow-left"></i>
+                Volver Atrás
+            </a>
+        </form>
+    </div>
+
+    <script>
+        // Manejo de mensajes mejorado
+        {% if messages %}
+            const messageContainer = document.getElementById('message-container');
+            {% for message in messages %}
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'custom-alert {% if message.tags %}{{ message.tags }}{% endif %}';
+                
+                const icon = '{% if message.tags == "success" %}<i class="fas fa-check-circle"></i>{% elif message.tags == "error" %}<i class="fas fa-exclamation-triangle"></i>{% else %}<i class="fas fa-info-circle"></i>{% endif %}';
+                
+                alertDiv.innerHTML = icon + '{{ message|escapejs }}';
+                messageContainer.appendChild(alertDiv);
+                
+                // Auto-ocultar después de 5 segundos
+                setTimeout(() => {
+                    alertDiv.style.opacity = '0';
+                    alertDiv.style.transform = 'translateY(-20px)';
+                    setTimeout(() => alertDiv.remove(), 300);
+                }, 5000);
+            {% endfor %}
+        {% endif %}
+
+        // Efectos interactivos del formulario
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('inscriptionForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const inputs = form.querySelectorAll('input, select, textarea');
+
+            // Validación en tiempo real
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    validateField(this);
+                });
+
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+            });
+
+            function validateField(field) {
+                const isValid = field.checkValidity();
+                if (field.value.trim() !== '') {
+                    if (isValid) {
+                        field.style.borderColor = 'var(--success-color)';
+                    } else {
+                        field.style.borderColor = 'var(--danger-color)';
+                    }
+                } else {
+                    field.style.borderColor = '#e9ecef';
+                }
+            }
+
+            // Efecto de loading en el botón
+            form.addEventListener('submit', function(e) {
+                // Verificar que todos los campos requeridos están llenos
+                const requiredFields = form.querySelectorAll('[required]');
+                let allValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        allValid = false;
+                        field.style.borderColor = 'var(--danger-color)';
+                    }
+                });
+                
+                if (allValid) {
+                    submitBtn.classList.add('loading');
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+                    submitBtn.disabled = true;
+                    
+                 
+                } else {
+                    e.preventDefault();
+                    alert('Por favor, completa todos los campos requeridos.');
+                }
+            });
+
+            // Animación de los campos al hacer focus
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'scale(1.02)';
+                });
+
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
+            });
+        });
+
+        // Confirmación antes de salir si hay datos (solo si no se está enviando el formulario)
+        let formSubmitting = false;
+        
+        document.getElementById('inscriptionForm').addEventListener('submit', function() {
+            formSubmitting = true;
+        });
+        
+        window.addEventListener('beforeunload', function(e) {
+            if (formSubmitting) {
+                return; // No mostrar confirmación si se está enviando el formulario
+            }
+            
+            const form = document.getElementById('inscriptionForm');
+            const formData = new FormData(form);
+            let hasData = false;
+            
+            for (let [key, value] of formData) {
+                if (value.trim() !== '' && key !== 'csrfmiddlewaretoken') {
+                    hasData = true;
+                    break;
+                }
+            }
+            
+            if (hasData) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        });
+    </script>
+</body>
+</html>
