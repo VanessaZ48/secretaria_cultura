@@ -52,11 +52,13 @@ class Calificacion(models.Model):
 
 
 class Docente(models.Model):
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
-    programas = models.ManyToManyField(ProgramaArtistico)
+    nombre = models.CharField(max_length=100)
+    apellido = models.CharField(max_length=100)
+    email = models.EmailField()
+    telefono = models.CharField(max_length=20, blank=True, null=True)
 
     def __str__(self):
-        return self.usuario.username
+        return f"{self.nombre} - {self.apellido}: {self.correo}"
     
 
 class Inscripcion(models.Model):
@@ -66,6 +68,14 @@ class Inscripcion(models.Model):
     correo = models.EmailField()
     comentarios = models.TextField(blank=True, null=True)
     fecha_inscripcion = models.DateTimeField(auto_now_add=True)
+
+    # Nuevo campo estado
+    ESTADOS = (
+        ('pendiente', 'Pendiente'),
+        ('confirmado', 'Confirmado'),
+        ('rechazado', 'Rechazado'),
+    )
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
 
     def __str__(self):
         return f"{self.nombre} {self.apellido} - {self.curso.nombre}"

@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
-from gestion_academica.models import Estudiante, ProgramaArtistico, Calificacion
+from gestion_academica.models import Estudiante, ProgramaArtistico, Calificacion, Docente, User, Inscripcion
+from django.db.models import Count
 
 
 # ======================
@@ -60,14 +61,30 @@ def logout_to_secretaria(request):
 def es_admin(user):
     return user.is_authenticated and user.groups.filter(name='Administrador').exists()
 
-
 @login_required
 @user_passes_test(es_admin)
 def administrador(request):
-    grupo = request.user.groups.first().name if request.user.groups.exists() else 'Sin grupo'
-    datos = {'grupo': grupo}
-    return render(request, 'usuarios/administrador.html', datos)
+    cursos = ProgramaArtistico.objects.all()
+    docentes = Docente.objects.all() 
+    total_cursos = cursos.count()
+    total_docentes = Docente.objects.count()
+    total_estudiantes = Estudiante.objects.count()
+    inscripciones = Inscripcion.objects.select_related('curso').all()
+    total_inscripciones_pendientes = inscripciones.count()
 
+    cursos_con_estudiantes = ProgramaArtistico.objects.annotate(num_estudiantes=Count('estudiante')).values('nombre', 'num_estudiantes')
+
+    context = {
+        'cursos': cursos,
+        'docentes':docentes,
+        'total_cursos': total_cursos,
+        'total_docentes': total_docentes,
+        'total_estudiantes': total_estudiantes,
+        'inscripciones': inscripciones,
+        'total_inscripciones_pendientes': total_inscripciones_pendientes,
+    }
+
+    return render(request, 'usuarios/administrador.html', context)
 
 # ======================
 # Vistas de Docente y Estudiante
