@@ -1,17 +1,22 @@
 {% extends 'usuarios/base.html' %}
 {% load static %}
 
-{% block title %}Panel de Administración - Sistema Secretaría de Cultura{% endblock %}
+{% block title %}
+Panel de Administración - Sistema Secretaría de Cultura
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid mt-4">
+
     <!-- ENCABEZADO PRINCIPAL -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="text-center mb-4 admin-welcome-section">
                 <i class="bi bi-shield-check display-4 text-primary mb-3"></i>
                 <h1 class="text-primary mb-2">Panel de Administración</h1>
-                <h4 class="text-muted">Bienvenido, <span class="text-primary">{{ request.user.username }}</span></h4>
+                <h4 class="text-muted">
+                    Bienvenido, <span class="text-primary">{{ request.user.username }}</span>
+                </h4>
                 <p class="text-muted">Sistema de gestión académica - Secretaría de Cultura</p>
             </div>
         </div>
@@ -24,7 +29,7 @@
                 <i class="bi bi-graph-up me-2"></i>Resumen General
             </h5>
         </div>
-        
+
         <!-- Total de Cursos -->
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="card stat-card border-0 shadow-sm h-100">
@@ -32,7 +37,9 @@
                     <div class="stat-icon bg-primary text-white mb-3">
                         <i class="bi bi-book-fill"></i>
                     </div>
-                    <h3 class="stat-number text-primary mb-2" style="cursor: pointer;" onclick="toggleCursos()">{{ total_cursos|default:"N/A" }}</h3>
+                    <h3 class="stat-number text-primary mb-2" style="cursor: pointer;" onclick="toggleCursos()">
+                        {{ total_cursos|default:"N/A" }}
+                    </h3>
                     <h6 class="card-title text-muted mb-0">Total de Cursos</h6>
                     <small class="text-muted">Programas activos</small>
                 </div>
@@ -46,7 +53,9 @@
                     <div class="stat-icon bg-success text-white mb-3">
                         <i class="bi bi-person-workspace"></i>
                     </div>
-                    <h3 class="stat-number text-success mb-2" style="cursor: pointer;" onclick="toggleDocentes()">{{ total_docentes|default:"N/A" }}</h3>
+                    <h3 class="stat-number text-success mb-2" style="cursor: pointer;" onclick="toggleDocentes()">
+                        {{ total_docentes|default:"N/A" }}
+                    </h3>
                     <h6 class="card-title text-muted mb-0">Total de Docentes</h6>
                     <small class="text-muted">Profesores registrados</small>
                 </div>
@@ -78,7 +87,9 @@
                     <div class="stat-icon bg-warning text-white mb-3">
                         <i class="bi bi-clock-history"></i>
                     </div>
-                    <h3 class="stat-number text-warning mb-2" style="cursor: pointer;" onclick="toggleInscripciones()">{{ total_inscripciones_pendientes|default:"N/A" }}</h3>
+                    <h3 class="stat-number text-warning mb-2" style="cursor: pointer;" onclick="toggleInscripciones()">
+                        {{ total_inscripciones_pendientes|default:"N/A" }}
+                    </h3>
                     <h6 class="card-title text-muted mb-0">Inscripciones Pendientes</h6>
                     <small class="text-muted">Requieren atención</small>
                 </div>
@@ -150,7 +161,7 @@
         {% endif %}
     </div>
 
-    <!-- INSCRIPCIONES PENDIENTES (Lista desplegable) -->
+    <!-- INSCRIPCIONES PENDIENTES -->
     <div id="lista-inscripciones" class="row mb-5" style="display: none;">
         <div class="col-12">
             <h5 class="mb-4 text-secondary">
@@ -188,7 +199,41 @@
         {% endif %}
     </div>
 
-    <!-- SECCIÓN DE ACCIONES PRINCIPALES -->
+    <!-- ESTADÍSTICAS POR CURSO -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h5 class="mb-4 text-secondary">
+                <i class="bi bi-pie-chart-fill me-2"></i>Estudiantes por Curso
+            </h5>
+        </div>
+
+        {% if cursos_con_estudiantes %}
+            <div class="col-12">
+                <table class="table table-striped table-hover">
+                    <thead class="table-info">
+                        <tr>
+                            <th>Curso</th>
+                            <th>Total de Estudiantes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for curso in cursos_con_estudiantes %}
+                            <tr>
+                                <td>{{ curso.nombre }}</td>
+                                <td>{{ curso.num_estudiantes }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <p class="text-muted fst-italic">No hay datos disponibles para mostrar estadísticas por curso.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- ACCIONES PRINCIPALES -->
     <div class="row mb-5">
         <div class="col-12">
             <h5 class="mb-4 text-secondary">
@@ -215,12 +260,12 @@
             <div class="card action-card border-0 shadow-sm h-100">
                 <div class="card-body text-center p-4">
                     <div class="action-icon bg-success text-white mb-3">
-                        <i class="bi bi-person-plus-fill"></i>
+                        <i class="bi bi-person-badge"></i>
                     </div>
-                    <h5 class="card-title text-dark mb-3">Asignar Docentes</h5>
-                    <p class="card-text text-muted mb-4">Asignar profesores a los diferentes cursos y programas</p>
-                    <button class="btn btn-success btn-sm" onclick="mostrarProximamente('Asignación de Docentes')">
-                        <i class="bi bi-person-check me-1"></i>Asignar
+                    <h5 class="card-title text-dark mb-3">Gestionar Docentes</h5>
+                    <p class="card-text text-muted mb-4">Administrar perfiles y asignaciones de profesores</p>
+                    <button class="btn btn-success btn-sm" onclick="mostrarProximamente('Gestión de Docentes')">
+                        <i class="bi bi-person-check me-1"></i>Gestionar
                     </button>
                 </div>
             </div>
@@ -229,13 +274,13 @@
         <div class="col-lg-4 col-md-6 mb-4">
             <div class="card action-card border-0 shadow-sm h-100">
                 <div class="card-body text-center p-4">
-                    <div class="action-icon bg-info text-white mb-3">
-                        <i class="bi bi-bar-chart-fill"></i>
+                    <div class="action-icon bg-warning text-white mb-3">
+                        <i class="bi bi-file-earmark-text"></i>
                     </div>
-                    <h5 class="card-title text-dark mb-3">Ver Estadísticas</h5>
-                    <p class="card-text text-muted mb-4">Visualizar gráficas y reportes del sistema académico</p>
-                    <button class="btn btn-info btn-sm" onclick="mostrarProximamente('Estadísticas y Reportes')">
-                        <i class="bi bi-graph-up me-1"></i>Ver Reportes
+                    <h5 class="card-title text-dark mb-3">Ver Reportes</h5>
+                    <p class="card-text text-muted mb-4">Generar informes y estadísticas de gestión académica</p>
+                    <button class="btn btn-warning btn-sm" onclick="mostrarProximamente('Reportes')">
+                        <i class="bi bi-bar-chart-line me-1"></i>Ver
                     </button>
                 </div>
             </div>
@@ -243,79 +288,72 @@
     </div>
 </div>
 
-<style>
-    .admin-welcome-section {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 1rem;
-    }
-    .stat-card, .action-card {
-        border-radius: 15px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .stat-card:hover, .action-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
-    }
-    .stat-icon, .action-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        font-size: 1.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-    }
-    .action-icon {
-        width: 70px;
-        height: 70px;
-        font-size: 1.8rem;
-    }
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: bold;
-    }
-    .text-primary {
-        color: rgb(42, 59, 43) !important;
-    }
-    .bg-primary {
-        background-color: rgb(42, 59, 43) !important;
-    }
-    .btn-primary {
-        background-color: rgb(42, 59, 43);
-        border-color: rgb(42, 59, 43);
-    }
-    .btn-outline-primary {
-        color: rgb(42, 59, 43);
-        border-color: rgb(42, 59, 43);
-    }
-    .btn-outline-primary:hover {
-        background-color: rgb(42, 59, 43);
-        border-color: rgb(42, 59, 43);
-        color: white;
-    }
-</style>
-
+<!-- SCRIPTS PARA INTERACTIVIDAD -->
 <script>
-    function toggleCursos() {
-        const cursosDiv = document.getElementById('lista-cursos');
-        cursosDiv.style.display = (cursosDiv.style.display === 'none' || cursosDiv.style.display === '') ? 'flex' : 'none';
-    }
+function toggleCursos() {
+    let div = document.getElementById('lista-cursos');
+    div.style.display = (div.style.display === 'none' || div.style.display === '') ? 'flex' : 'none';
+}
 
-    function toggleDocentes() {
-        const docentesDiv = document.getElementById('lista-docentes');
-        docentesDiv.style.display = (docentesDiv.style.display === 'none' || docentesDiv.style.display === '') ? 'block' : 'none';
-    }
+function toggleDocentes() {
+    let div = document.getElementById('lista-docentes');
+    div.style.display = (div.style.display === 'none' || div.style.display === '') ? 'block' : 'none';
+}
 
-    function toggleInscripciones() {
-        const inscripcionesDiv = document.getElementById('lista-inscripciones');
-        inscripcionesDiv.style.display = (inscripcionesDiv.style.display === 'none' || inscripcionesDiv.style.display === '') ? 'block' : 'none';
-    }
+function toggleInscripciones() {
+    let div = document.getElementById('lista-inscripciones');
+    div.style.display = (div.style.display === 'none' || div.style.display === '') ? 'block' : 'none';
+}
 
-    function mostrarProximamente(funcion) {
-        alert('Funcionalidad "' + funcion + '" próximamente.');
-    }
+function mostrarProximamente(funcionalidad) {
+    alert(`La funcionalidad "${funcionalidad}" estará disponible próximamente.`);
+}
 </script>
+
+<style>
+/* Estilos para iconos en tarjetas estadísticas */
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+
+/* Estilos para tarjetas de estadísticas */
+.stat-card {
+    transition: transform 0.2s ease-in-out;
+}
+.stat-card:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+}
+
+/* Iconos para acciones principales */
+.action-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+}
+
+/* Estilo para contenedor cursos toggle */
+#lista-cursos {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Acción de los botones */
+button:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);
+}
+</style>
 {% endblock %}

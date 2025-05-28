@@ -57,7 +57,6 @@ def logout_to_secretaria(request):
 # ======================
 # Permiso de Administrador
 # ======================
-
 def es_admin(user):
     return user.is_authenticated and user.groups.filter(name='Administrador').exists()
 
@@ -65,23 +64,34 @@ def es_admin(user):
 @user_passes_test(es_admin)
 def administrador(request):
     cursos = ProgramaArtistico.objects.all()
-    docentes = Docente.objects.all() 
+    docentes = Docente.objects.all()
     total_cursos = cursos.count()
-    total_docentes = Docente.objects.count()
+    total_docentes = docentes.count()
     total_estudiantes = Estudiante.objects.count()
     inscripciones = Inscripcion.objects.select_related('curso').all()
     total_inscripciones_pendientes = inscripciones.count()
 
-    cursos_con_estudiantes = ProgramaArtistico.objects.annotate(num_estudiantes=Count('estudiante')).values('nombre', 'num_estudiantes')
+    # Estadísticas de estudiantes por curso
+    cursos_con_estudiantes = (
+        ProgramaArtistico.objects
+        .annotate(num_estudiantes=Count('estudiante'))
+        .values('nombre', 'num_estudiantes')
+    )
+
+    # Extraer listas para los gráficos
+    nombres_cursos = [curso['nombre'] for curso in cursos_con_estudiantes]
+    total_estudiantes_por_curso = [curso['num_estudiantes'] for curso in cursos_con_estudiantes]
 
     context = {
         'cursos': cursos,
-        'docentes':docentes,
+        'docentes': docentes,
         'total_cursos': total_cursos,
         'total_docentes': total_docentes,
         'total_estudiantes': total_estudiantes,
         'inscripciones': inscripciones,
         'total_inscripciones_pendientes': total_inscripciones_pendientes,
+        'nombres_cursos': nombres_cursos,
+        'total_estudiantes_por_curso': total_estudiantes_por_curso,
     }
 
     return render(request, 'usuarios/administrador.html', context)
