@@ -58,7 +58,7 @@ class Docente(models.Model):
     telefono = models.CharField(max_length=20, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.nombre} - {self.apellido}: {self.correo}"
+        return f"{self.nombre} - {self.apellido}: {self.email}"
     
 
 class Inscripcion(models.Model):
