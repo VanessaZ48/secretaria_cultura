@@ -229,7 +229,7 @@ Panel de Administración - Sistema Secretaría de Cultura
         {% endif %}
     </div>
 
-    <!-- ESTUDIANTES POR CURSO -->
+    <!-- ESTUDIANTES POR CURSO - CORREGIDO -->
     <div class="row mb-5">
         <div class="col-12">
             <h5 class="mb-4 text-secondary">
@@ -239,36 +239,59 @@ Panel de Administración - Sistema Secretaría de Cultura
 
         {% if cursos_con_estudiantes %}
             <div class="col-12">
-                <table class="table table-bordered table-hover">
-                    <thead class="table-primary">
-                        <tr>
-                            <th>Curso</th>
-                            <th>Estudiantes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for curso in cursos_con_estudiantes %}
-                            <tr>
-                                <td>{{ curso.nombre }}</td>
-                                <td>
+                <div class="accordion" id="accordionCursos">
+                    {% for curso in cursos_con_estudiantes %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                        data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" 
+                                        aria-controls="collapse{{ forloop.counter }}">
+                                    <strong>{{ curso.nombre }}</strong>
+                                    <span class="badge bg-primary ms-2">
+                                        {% if curso.estudiantes %}
+                                            {{ curso.estudiantes|length }} estudiante{{ curso.estudiantes|length|pluralize:"s" }}
+                                        {% else %}
+                                            0 estudiantes
+                                        {% endif %}
+                                    </span>
+                                </button>
+                            </h2>
+                            <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" 
+                                 aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#accordionCursos">
+                                <div class="accordion-body">
                                     {% if curso.estudiantes %}
-                                        <ul class="list-unstyled mb-0">
+                                        <div class="row">
                                             {% for estudiante in curso.estudiantes %}
-                                                <li>{{ estudiante.nombre }} {{ estudiante.apellido }}</li>
+                                                <div class="col-md-6 col-lg-4 mb-2">
+                                                    <div class="card border-0 bg-light">
+                                                        <div class="card-body py-2 px-3">
+                                                            <small class="text-muted">
+                                                                <i class="bi bi-person-fill me-1"></i>
+                                                                {{ estudiante.nombre }} {{ estudiante.apellido }}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             {% endfor %}
-                                        </ul>
+                                        </div>
                                     {% else %}
-                                        <em>No hay estudiantes inscritos</em>
+                                        <div class="text-center py-3">
+                                            <i class="bi bi-person-x text-muted" style="font-size: 2rem;"></i>
+                                            <p class="text-muted mt-2 mb-0">No hay estudiantes inscritos en este curso</p>
+                                        </div>
                                     {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         {% else %}
             <div class="col-12">
-                <p class="text-muted fst-italic">No hay cursos con estudiantes registrados.</p>
+                <div class="text-center py-4">
+                    <i class="bi bi-journal-x text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-3 mb-0">No hay cursos con estudiantes registrados.</p>
+                </div>
             </div>
         {% endif %}
     </div>
@@ -305,6 +328,13 @@ function toggleInscripciones() {
 }
 .admin-welcome-section {
     user-select: none;
+}
+.accordion-button:not(.collapsed) {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 </style>
 {% endblock %}

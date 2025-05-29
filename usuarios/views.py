@@ -72,22 +72,21 @@ def administrador(request):
     inscripciones = Inscripcion.objects.select_related('curso').all()
     total_inscripciones_pendientes = inscripciones.filter(estado='pendiente').count()
 
-    # Estadísticas: número de inscritos por curso (desde Inscripcion)
+    # Para mostrar estudiantes REALMENTE REGISTRADOS por curso (modelo Estudiante)
     cursos_con_estudiantes = []
     for curso in cursos:
-        # Contar inscripciones que correspondan a este curso
-        num_estudiantes = inscripciones.filter(curso=curso).count()
-    
+        # Obtener estudiantes que están registrados en este programa/curso
+        estudiantes_del_curso = Estudiante.objects.filter(programa=curso)
+        
         cursos_con_estudiantes.append({
             'nombre': curso.nombre,
-            'num_estudiantes': num_estudiantes
+            'estudiantes': estudiantes_del_curso
         })
 
+    # TOP 5 cursos con más estudiantes REGISTRADOS (no inscripciones)
     top_cursos = ProgramaArtistico.objects.annotate(
         num_estudiantes=Count('estudiante')
     ).order_by('-num_estudiantes')[:5]
-
-
 
     context = {
         'cursos': cursos,
