@@ -24,12 +24,6 @@ Panel de Administración - Sistema Secretaría de Cultura
 
     <!-- TARJETAS DE ESTADÍSTICAS -->
     <div class="row mb-5">
-        <div class="col-12">
-            <h5 class="mb-3 text-secondary">
-                <i class="bi bi-graph-up me-2"></i>Resumen General
-            </h5>
-        </div>
-
         <!-- Total de Cursos -->
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="card stat-card border-0 shadow-sm h-100">
@@ -165,7 +159,7 @@ Panel de Administración - Sistema Secretaría de Cultura
     <div id="lista-inscripciones" class="row mb-5" style="display: none;">
         <div class="col-12">
             <h5 class="mb-4 text-secondary">
-                <i class="bi bi-person-badge me-2"></i>Inscripciones Pendientes
+                <i class="bi bi-clock-history me-2"></i>Inscripciones Pendientes
             </h5>
         </div>
 
@@ -177,47 +171,49 @@ Panel de Administración - Sistema Secretaría de Cultura
                             <th>Nombre</th>
                             <th>Apellido</th>
                             <th>Curso</th>
-                            <th>Fecha de Inscripción</th>
+                            <th>Fecha Inscripción</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for inscripcion in inscripciones %}
-                            <tr>
-                                <td>{{ inscripcion.nombre }}</td>
-                                <td>{{ inscripcion.apellido }}</td>
-                                <td>{{ inscripcion.curso.nombre }}</td>
-                                <td>{{ inscripcion.fecha_inscripcion|date:"d/m/Y" }}</td>
-                            </tr>
+                            {% if inscripcion.estado == 'pendiente' %}
+                                <tr>
+                                    <td>{{ inscripcion.nombre }}</td>
+                                    <td>{{ inscripcion.apellido }}</td>
+                                    <td>{{ inscripcion.curso.nombre }}</td>
+                                    <td>{{ inscripcion.fecha_inscripcion|date:"d/m/Y H:i" }}</td>
+                                </tr>
+                            {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         {% else %}
             <div class="col-12">
-                <p class="text-muted fst-italic">No hay inscripciones pendientes actualmente.</p>
+                <p class="text-muted fst-italic">No hay inscripciones pendientes.</p>
             </div>
         {% endif %}
     </div>
 
-    <!-- ESTADÍSTICAS POR CURSO -->
+    <!-- TOP CURSOS POR INSCRITOS -->
     <div class="row mb-5">
         <div class="col-12">
             <h5 class="mb-4 text-secondary">
-                <i class="bi bi-pie-chart-fill me-2"></i>Estudiantes por Curso
+                <i class="bi bi-award-fill me-2"></i>Top 5 Cursos con Más Inscritos
             </h5>
         </div>
 
-        {% if cursos_con_estudiantes %}
+        {% if top_cursos %}
             <div class="col-12">
                 <table class="table table-striped table-hover">
-                    <thead class="table-info">
+                    <thead class="table-dark">
                         <tr>
                             <th>Curso</th>
-                            <th>Total de Estudiantes</th>
+                            <th>Número de Inscritos</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for curso in cursos_con_estudiantes %}
+                        {% for curso in top_cursos %}
                             <tr>
                                 <td>{{ curso.nombre }}</td>
                                 <td>{{ curso.num_estudiantes }}</td>
@@ -228,132 +224,87 @@ Panel de Administración - Sistema Secretaría de Cultura
             </div>
         {% else %}
             <div class="col-12">
-                <p class="text-muted fst-italic">No hay datos disponibles para mostrar estadísticas por curso.</p>
+                <p class="text-muted fst-italic">No hay datos para mostrar los cursos con más inscritos.</p>
             </div>
         {% endif %}
     </div>
 
-    <!-- ACCIONES PRINCIPALES -->
+    <!-- ESTUDIANTES POR CURSO -->
     <div class="row mb-5">
         <div class="col-12">
             <h5 class="mb-4 text-secondary">
-                <i class="bi bi-gear-fill me-2"></i>Acciones Principales
+                <i class="bi bi-people-fill me-2"></i>Estudiantes por Curso
             </h5>
         </div>
 
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card action-card border-0 shadow-sm h-100">
-                <div class="card-body text-center p-4">
-                    <div class="action-icon bg-primary text-white mb-3">
-                        <i class="bi bi-journals"></i>
-                    </div>
-                    <h5 class="card-title text-dark mb-3">Gestionar Cursos</h5>
-                    <p class="card-text text-muted mb-4">Crear, editar y administrar los programas académicos disponibles</p>
-                    <button class="btn btn-primary btn-sm" onclick="mostrarProximamente('Gestión de Cursos')">
-                        <i class="bi bi-plus-circle me-1"></i>Gestionar
-                    </button>
-                </div>
+        {% if cursos_con_estudiantes %}
+            <div class="col-12">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Curso</th>
+                            <th>Estudiantes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for curso in cursos_con_estudiantes %}
+                            <tr>
+                                <td>{{ curso.nombre }}</td>
+                                <td>
+                                    {% if curso.estudiantes %}
+                                        <ul class="list-unstyled mb-0">
+                                            {% for estudiante in curso.estudiantes %}
+                                                <li>{{ estudiante.nombre }} {{ estudiante.apellido }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <em>No hay estudiantes inscritos</em>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        </div>
-
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card action-card border-0 shadow-sm h-100">
-                <div class="card-body text-center p-4">
-                    <div class="action-icon bg-success text-white mb-3">
-                        <i class="bi bi-person-badge"></i>
-                    </div>
-                    <h5 class="card-title text-dark mb-3">Gestionar Docentes</h5>
-                    <p class="card-text text-muted mb-4">Administrar perfiles y asignaciones de profesores</p>
-                    <button class="btn btn-success btn-sm" onclick="mostrarProximamente('Gestión de Docentes')">
-                        <i class="bi bi-person-check me-1"></i>Gestionar
-                    </button>
-                </div>
+        {% else %}
+            <div class="col-12">
+                <p class="text-muted fst-italic">No hay cursos con estudiantes registrados.</p>
             </div>
-        </div>
-
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card action-card border-0 shadow-sm h-100">
-                <div class="card-body text-center p-4">
-                    <div class="action-icon bg-warning text-white mb-3">
-                        <i class="bi bi-file-earmark-text"></i>
-                    </div>
-                    <h5 class="card-title text-dark mb-3">Ver Reportes</h5>
-                    <p class="card-text text-muted mb-4">Generar informes y estadísticas de gestión académica</p>
-                    <button class="btn btn-warning btn-sm" onclick="mostrarProximamente('Reportes')">
-                        <i class="bi bi-bar-chart-line me-1"></i>Ver
-                    </button>
-                </div>
-            </div>
-        </div>
+        {% endif %}
     </div>
+
 </div>
 
-<!-- SCRIPTS PARA INTERACTIVIDAD -->
 <script>
 function toggleCursos() {
-    let div = document.getElementById('lista-cursos');
-    div.style.display = (div.style.display === 'none' || div.style.display === '') ? 'flex' : 'none';
+    let el = document.getElementById('lista-cursos');
+    el.style.display = (el.style.display === 'none') ? 'flex' : 'none';
 }
-
 function toggleDocentes() {
-    let div = document.getElementById('lista-docentes');
-    div.style.display = (div.style.display === 'none' || div.style.display === '') ? 'block' : 'none';
+    let el = document.getElementById('lista-docentes');
+    el.style.display = (el.style.display === 'none') ? 'block' : 'none';
 }
-
 function toggleInscripciones() {
-    let div = document.getElementById('lista-inscripciones');
-    div.style.display = (div.style.display === 'none' || div.style.display === '') ? 'block' : 'none';
-}
-
-function mostrarProximamente(funcionalidad) {
-    alert(`La funcionalidad "${funcionalidad}" estará disponible próximamente.`);
+    let el = document.getElementById('lista-inscripciones');
+    el.style.display = (el.style.display === 'none') ? 'block' : 'none';
 }
 </script>
 
 <style>
-/* Estilos para iconos en tarjetas estadísticas */
+.stat-card {
+    border-radius: 10px;
+}
 .stat-icon {
     width: 60px;
     height: 60px;
-    margin: 0 auto;
     border-radius: 50%;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     font-size: 28px;
 }
-
-/* Estilos para tarjetas de estadísticas */
-.stat-card {
-    transition: transform 0.2s ease-in-out;
-}
-.stat-card:hover {
-    transform: scale(1.05);
-    cursor: pointer;
-}
-
-/* Iconos para acciones principales */
-.action-icon {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 15px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-}
-
-/* Estilo para contenedor cursos toggle */
-#lista-cursos {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-/* Acción de los botones */
-button:focus {
-    outline: none;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);
+.admin-welcome-section {
+    user-select: none;
 }
 </style>
 {% endblock %}

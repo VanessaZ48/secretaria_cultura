@@ -57,6 +57,7 @@ def logout_to_secretaria(request):
 # ======================
 # Permiso de Administrador
 # ======================
+
 def es_admin(user):
     return user.is_authenticated and user.groups.filter(name='Administrador').exists()
 
@@ -69,18 +70,24 @@ def administrador(request):
     total_docentes = docentes.count()
     total_estudiantes = Estudiante.objects.count()
     inscripciones = Inscripcion.objects.select_related('curso').all()
-    total_inscripciones_pendientes = inscripciones.count()
+    total_inscripciones_pendientes = inscripciones.filter(estado='pendiente').count()
 
-    # Estadísticas de estudiantes por curso
-    cursos_con_estudiantes = (
-        ProgramaArtistico.objects
-        .annotate(num_estudiantes=Count('estudiante'))
-        .values('nombre', 'num_estudiantes')
-    )
+    # Estadísticas: número de inscritos por curso (desde Inscripcion)
+    cursos_con_estudiantes = []
+    for curso in cursos:
+        # Contar inscripciones que correspondan a este curso
+        num_estudiantes = inscripciones.filter(curso=curso).count()
+    
+        cursos_con_estudiantes.append({
+            'nombre': curso.nombre,
+            'num_estudiantes': num_estudiantes
+        })
 
-    # Extraer listas para los gráficos
-    nombres_cursos = [curso['nombre'] for curso in cursos_con_estudiantes]
-    total_estudiantes_por_curso = [curso['num_estudiantes'] for curso in cursos_con_estudiantes]
+    top_cursos = ProgramaArtistico.objects.annotate(
+        num_estudiantes=Count('estudiante')
+    ).order_by('-num_estudiantes')[:5]
+
+
 
     context = {
         'cursos': cursos,
@@ -90,12 +97,11 @@ def administrador(request):
         'total_estudiantes': total_estudiantes,
         'inscripciones': inscripciones,
         'total_inscripciones_pendientes': total_inscripciones_pendientes,
-        'nombres_cursos': nombres_cursos,
-        'total_estudiantes_por_curso': total_estudiantes_por_curso,
+        'cursos_con_estudiantes': cursos_con_estudiantes,
+        'top_cursos': top_cursos,
     }
 
     return render(request, 'usuarios/administrador.html', context)
-
 # ======================
 # Vistas de Docente y Estudiante
 # ======================
